@@ -625,4 +625,107 @@ public unsafe class TableTests
         Assert.Equal(Number.Two, n[1]);
         Assert.Equal(Number.Three, n[2]);
     }
+
+    [Fact]
+    private void Size()
+    {
+        using World world = World.Create();
+
+        Entity e = world.Entity().Set(new Position(10, 20));
+        world.Entity().Set(new Position(20, 30));
+        world.Entity().Set(new Position(30, 40));
+
+        Table table = e.Table();
+        Assert.True(table.Size() >= table.Count);
+    }
+
+    [Fact]
+    private void Entities()
+    {
+        using World world = World.Create();
+
+        Entity e1 = world.Entity().Set(new Position(10, 20));
+        Entity e2 = world.Entity().Set(new Position(20, 30));
+        Entity e3 = world.Entity().Set(new Position(30, 40));
+
+        Table table = e1.Table();
+        ulong* entities = table.Entities();
+        Assert.True(entities != null);
+        Assert.Equal(e1, entities[0]);
+        Assert.Equal(e2, entities[1]);
+        Assert.Equal(e3, entities[2]);
+    }
+
+    [Fact]
+    private void ClearEntities()
+    {
+        using World world = World.Create();
+
+        Entity e1 = world.Entity().Set(new Position(10, 20));
+        world.Entity().Set(new Position(20, 30));
+        world.Entity().Set(new Position(30, 40));
+
+        Table table = e1.Table();
+        Assert.Equal(3, table.Count);
+
+        table.ClearEntities();
+        Assert.False(e1.IsAlive());
+    }
+
+    [Fact]
+    private void TableId()
+    {
+        using World world = World.Create();
+
+        Entity e1 = world.Entity().Set(new Position(10, 20));
+        Entity e2 = world.Entity().Set(new Velocity(1, 2));
+
+        Table t1 = e1.Table();
+        Table t2 = e2.Table();
+
+        Assert.NotEqual(t1.TableId(), t2.TableId());
+        Assert.NotEqual(0UL, t1.TableId());
+    }
+
+    [Fact]
+    private void LockUnlock()
+    {
+        using World world = World.Create();
+
+        Entity e = world.Entity().Set(new Position(10, 20));
+        Table table = e.Table();
+
+        table.Lock();
+        table.Unlock();
+
+        // Verify table is usable after unlock
+        Assert.Equal(1, table.Count);
+    }
+
+    [Fact]
+    private void HasFlags()
+    {
+        using World world = World.Create();
+
+        Entity e = world.Entity().Set(new Position(10, 20));
+        Table table = e.Table();
+
+        // A basic table should not have special flags
+        Assert.False(table.HasFlags(1u << 18)); // EcsTableHasIsA
+    }
+
+    [Fact]
+    private void Records()
+    {
+        using World world = World.Create();
+
+        Entity e = world.Entity()
+            .Add<Position>()
+            .Add<Velocity>();
+
+        Table table = e.Table();
+        var records = table.Records();
+        Assert.True(records.count > 0);
+        Assert.True(records.array != null);
+    }
 }

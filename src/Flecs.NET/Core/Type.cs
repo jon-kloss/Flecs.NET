@@ -403,6 +403,15 @@ public static unsafe class Type<T>
                 .Invoke(null, null)!;
         }
 
+        if (typeof(IOnReplaceHook<T>).IsAssignableFrom(typeof(T)))
+        {
+            hooksContext.OnReplace.Invoker = (delegate*<ecs_iter_t*, void>)&Functions.OnReplaceEachIterRefCallbackPointer<T>;
+            hooksContext.OnReplace.Pointer = (void*)(nint)typeof(IOnReplaceHook<>.FunctionPointer<>)
+                .MakeGenericType(typeof(T), typeof(T))
+                .GetMethod("Get")!
+                .Invoke(null, null)!;
+        }
+
         ecs_type_hooks_t hooks = default;
         hooks.ctor = hooksContext.Ctor == default ? default : &Functions.CtorCallback;
         hooks.dtor = hooksContext.Dtor == default ? default : &Functions.DtorCallback;
@@ -411,6 +420,7 @@ public static unsafe class Type<T>
         hooks.on_add = hooksContext.OnAdd == default ? default : &Functions.OnAddCallback;
         hooks.on_remove = hooksContext.OnRemove == default ? default : &Functions.OnRemoveCallback;
         hooks.on_set = hooksContext.OnSet == default ? default : &Functions.OnSetCallback;
+        hooks.on_replace = hooksContext.OnReplace == default ? default : &Functions.OnReplaceCallback;
         hooks.binding_ctx = Memory.Alloc(hooksContext);
         hooks.binding_ctx_free = &Functions.TypeHooksContextFree;
 

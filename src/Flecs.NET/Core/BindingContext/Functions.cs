@@ -1055,4 +1055,123 @@ internal static unsafe partial class Functions
     }
 
     #endregion
+
+    #region OnReplace Hook Callbacks
+
+    [UnmanagedCallersOnly]
+    internal static void OnReplaceCallback(ecs_iter_t* iter)
+    {
+        TypeHooksContext* context = (TypeHooksContext*)iter->callback_ctx;
+        ((delegate*<ecs_iter_t*, void>)context->OnReplace.Invoker)(iter);
+    }
+
+    internal static void OnReplaceIterFieldCallbackDelegate<T>(ecs_iter_t* iter)
+    {
+        TypeHooksContext* context = (TypeHooksContext*)iter->callback_ctx;
+        Invoker.Iter(iter, (Ecs.IterFieldCallback<T>)context->OnReplace.Delegate.Target!);
+    }
+
+    internal static void OnReplaceIterFieldCallbackPointer<T>(ecs_iter_t* iter)
+    {
+        TypeHooksContext* context = (TypeHooksContext*)iter->callback_ctx;
+        Invoker.Iter(iter, (delegate*<Iter, Field<T>, void>)context->OnReplace.Pointer);
+    }
+
+    internal static void OnReplaceIterSpanCallbackDelegate<T>(ecs_iter_t* iter)
+    {
+        TypeHooksContext* context = (TypeHooksContext*)iter->callback_ctx;
+        Invoker.Iter(iter, (Ecs.IterSpanCallback<T>)context->OnReplace.Delegate.Target!);
+    }
+
+    internal static void OnReplaceIterSpanCallbackPointer<T>(ecs_iter_t* iter)
+    {
+        TypeHooksContext* context = (TypeHooksContext*)iter->callback_ctx;
+        Invoker.Iter(iter, (delegate*<Iter, Span<T>, void>)context->OnReplace.Pointer);
+    }
+
+    internal static void OnReplaceIterPointerCallbackDelegate<T>(ecs_iter_t* iter)
+    {
+        TypeHooksContext* context = (TypeHooksContext*)iter->callback_ctx;
+        Invoker.Iter(iter, (Ecs.IterPointerCallback<T>)context->OnReplace.Delegate.Target!);
+    }
+
+    internal static void OnReplaceIterPointerCallbackPointer<T>(ecs_iter_t* iter)
+    {
+        TypeHooksContext* context = (TypeHooksContext*)iter->callback_ctx;
+        Invoker.Iter(iter, (delegate*<Iter, T*, void>)context->OnReplace.Pointer);
+    }
+
+    internal static void OnReplaceEachRefCallbackDelegate<T>(ecs_iter_t* iter)
+    {
+        TypeHooksContext* context = (TypeHooksContext*)iter->callback_ctx;
+        Invoker.Each(iter, (Ecs.EachRefCallback<T>)context->OnReplace.Delegate.Target!);
+    }
+
+    internal static void OnReplaceEachRefCallbackPointer<T>(ecs_iter_t* iter)
+    {
+        TypeHooksContext* context = (TypeHooksContext*)iter->callback_ctx;
+        Invoker.Each(iter, (delegate*<ref T, void>)context->OnReplace.Pointer);
+    }
+
+    internal static void OnReplaceEachEntityRefCallbackDelegate<T>(ecs_iter_t* iter)
+    {
+        TypeHooksContext* context = (TypeHooksContext*)iter->callback_ctx;
+        Invoker.Each(iter, (Ecs.EachEntityRefCallback<T>)context->OnReplace.Delegate.Target!);
+    }
+
+    internal static void OnReplaceEachEntityRefCallbackPointer<T>(ecs_iter_t* iter)
+    {
+        TypeHooksContext* context = (TypeHooksContext*)iter->callback_ctx;
+        Invoker.Each(iter, (delegate*<Entity, ref T, void>)context->OnReplace.Pointer);
+    }
+
+    internal static void OnReplaceEachIterRefCallbackDelegate<T>(ecs_iter_t* iter)
+    {
+        TypeHooksContext* context = (TypeHooksContext*)iter->callback_ctx;
+        Invoker.Each(iter, (Ecs.EachIterRefCallback<T>)context->OnReplace.Delegate.Target!);
+    }
+
+    internal static void OnReplaceEachIterRefCallbackPointer<T>(ecs_iter_t* iter)
+    {
+        TypeHooksContext* context = (TypeHooksContext*)iter->callback_ctx;
+        Invoker.Each(iter, (delegate*<Iter, int, ref T, void>)context->OnReplace.Pointer);
+    }
+
+    internal static void OnReplaceEachPointerCallbackDelegate<T>(ecs_iter_t* iter)
+    {
+        TypeHooksContext* context = (TypeHooksContext*)iter->callback_ctx;
+        Invoker.Each(iter, (Ecs.EachPointerCallback<T>)context->OnReplace.Delegate.Target!);
+    }
+
+    internal static void OnReplaceEachPointerCallbackPointer<T>(ecs_iter_t* iter)
+    {
+        TypeHooksContext* context = (TypeHooksContext*)iter->callback_ctx;
+        Invoker.Each(iter, (delegate*<T*, void>)context->OnReplace.Pointer);
+    }
+
+    internal static void OnReplaceEachEntityPointerCallbackDelegate<T>(ecs_iter_t* iter)
+    {
+        TypeHooksContext* context = (TypeHooksContext*)iter->callback_ctx;
+        Invoker.Each(iter, (Ecs.EachEntityPointerCallback<T>)context->OnReplace.Delegate.Target!);
+    }
+
+    internal static void OnReplaceEachEntityPointerCallbackPointer<T>(ecs_iter_t* iter)
+    {
+        TypeHooksContext* context = (TypeHooksContext*)iter->callback_ctx;
+        Invoker.Each(iter, (delegate*<Entity, T*, void>)context->OnReplace.Pointer);
+    }
+
+    internal static void OnReplaceEachIterPointerCallbackDelegate<T>(ecs_iter_t* iter)
+    {
+        TypeHooksContext* context = (TypeHooksContext*)iter->callback_ctx;
+        Invoker.Each(iter, (Ecs.EachIterPointerCallback<T>)context->OnReplace.Delegate.Target!);
+    }
+
+    internal static void OnReplaceEachIterPointerCallbackPointer<T>(ecs_iter_t* iter)
+    {
+        TypeHooksContext* context = (TypeHooksContext*)iter->callback_ctx;
+        Invoker.Each(iter, (delegate*<Iter, int, T*, void>)context->OnReplace.Pointer);
+    }
+
+    #endregion
 }

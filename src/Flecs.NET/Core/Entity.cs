@@ -437,6 +437,49 @@ public unsafe partial struct Entity : IEquatable<Entity>, IEntity<Entity>
     }
 
     /// <summary>
+    ///     Set the child order for this entity (requires OrderedChildren trait on parent).
+    /// </summary>
+    /// <param name="children">Pointer to array of child entity ids.</param>
+    /// <param name="childCount">Number of children.</param>
+    public void SetChildOrder(ulong* children, int childCount)
+    {
+        ecs_set_child_order(World, Id, children, childCount);
+    }
+
+    /// <summary>
+    ///     Create a child entity with the ChildOf relationship.
+    /// </summary>
+    /// <param name="name">Optional name for the child entity.</param>
+    /// <returns>The child entity.</returns>
+    public Entity Child(string? name = null)
+    {
+        if (name != null)
+        {
+            using NativeString nativeName = (NativeString)name;
+            return new Entity(World, ecs_new_w_parent(World, Id, nativeName));
+        }
+
+        Entity child = new Entity(World);
+        child.Add(EcsChildOf, Id);
+        return child;
+    }
+
+    /// <summary>
+    ///     Create a child entity with a custom relationship.
+    /// </summary>
+    /// <param name="relation">The relationship to use.</param>
+    /// <param name="name">Optional name for the child entity.</param>
+    /// <returns>The child entity.</returns>
+    public Entity Child(ulong relation, string? name = null)
+    {
+        Entity child = name != null
+            ? new Entity(World, name)
+            : new Entity(World);
+        child.Add(relation, Id);
+        return child;
+    }
+
+    /// <summary>
     ///     Get pointer to component value.
     /// </summary>
     /// <param name="compId"></param>
@@ -926,7 +969,7 @@ public unsafe partial struct Entity : IEquatable<Entity>, IEntity<Entity>
     /// <returns></returns>
     public Entity Parent()
     {
-        return Target(EcsChildOf);
+        return new Entity(World, ecs_get_parent(World, Id));
     }
 
     /// <summary>
@@ -1370,6 +1413,17 @@ public unsafe partial struct Entity : IEquatable<Entity>, IEntity<Entity>
         T* ptr = (T*)GetPtr(Ecs.Constant, Type<T>.UnderlyingTypeId);
         Ecs.Assert(ptr != null, "Entity is not a constant");
         return *ptr;
+    }
+
+    /// <summary>
+    ///     Get enum constant for entity.
+    /// </summary>
+    /// <typeparam name="T">The enum type.</typeparam>
+    /// <returns>The enum constant value.</returns>
+    public T GetConstant<T>() where T : unmanaged, Enum
+    {
+        Entity target = Target<T>();
+        return target.ToConstant<T>();
     }
 
     /// <summary>
@@ -2623,6 +2677,41 @@ public unsafe partial struct Entity : IEquatable<Entity>, IEntity<Entity>
     }
 
     /// <summary>
+    ///     Assign a component value. Panics if the entity does not have the component.
+    /// </summary>
+    /// <param name="data">The component data.</param>
+    /// <typeparam name="T">The component type.</typeparam>
+    /// <returns>Reference to self.</returns>
+    public ref Entity Assign<T>(in T data) where T : unmanaged
+    {
+        return ref AssignInternal(Type<T>.Id(World), in data);
+    }
+
+    /// <summary>
+    ///     Assign a pair component value. Panics if the entity does not have the component.
+    /// </summary>
+    /// <param name="second">The second id of the pair.</param>
+    /// <param name="data">The component data.</param>
+    /// <typeparam name="TFirst">The first type of the pair.</typeparam>
+    /// <returns>Reference to self.</returns>
+    public ref Entity Assign<TFirst>(ulong second, in TFirst data) where TFirst : unmanaged
+    {
+        return ref AssignInternal(Ecs.Pair<TFirst>(second, World), in data);
+    }
+
+    /// <summary>
+    ///     Assign a pair component value. Panics if the entity does not have the component.
+    /// </summary>
+    /// <param name="data">The component data.</param>
+    /// <typeparam name="TFirst">The first type of the pair.</typeparam>
+    /// <typeparam name="TSecond">The second type of the pair.</typeparam>
+    /// <returns>Reference to self.</returns>
+    public ref Entity Assign<TFirst, TSecond>(in TSecond data) where TSecond : unmanaged
+    {
+        return ref AssignInternal(Ecs.Pair<TFirst, TSecond>(World), in data);
+    }
+
+    /// <summary>
     ///     Entities created in function will have the current entity.
     /// </summary>
     /// <param name="callback">The callback.</param>
@@ -2950,7 +3039,10 @@ public unsafe partial struct Entity : IEquatable<Entity>, IEntity<Entity>
             return ref this;
         }
 
-        void* ptr = ecs_ensure_id(World, Id, e);
+        ecs_type_info_t* ti = ecs_get_type_info(World, e);
+        Ecs.Assert(ti != null && ti->size != 0, nameof(ECS_INVALID_PARAMETER));
+
+        void* ptr = ecs_ensure_id(World, Id, e, (nint)ti->size);
         Ecs.Assert(ptr != null, nameof(ECS_INTERNAL_ERROR));
 
         using NativeString nativeJson = (NativeString)json;
@@ -3128,7 +3220,9 @@ public unsafe partial struct Entity : IEquatable<Entity>, IEntity<Entity>
     /// <returns></returns>
     public void* EnsurePtr(ulong id)
     {
-        return ecs_ensure_id(World, Id, id);
+        ecs_type_info_t* ti = ecs_get_type_info(World, id);
+        Ecs.Assert(ti != null && ti->size != 0, nameof(ECS_INVALID_PARAMETER));
+        return ecs_ensure_id(World, Id, id, (nint)ti->size);
     }
 
     /// <summary>
@@ -3150,7 +3244,7 @@ public unsafe partial struct Entity : IEquatable<Entity>, IEntity<Entity>
     public T* EnsurePtr<T>() where T : unmanaged
     {
         Ecs.Assert(Type<T>.Size != 0, nameof(ECS_INVALID_PARAMETER));
-        return (T*)ecs_ensure_id(World, Id, Type<T>.Id(World));
+        return (T*)ecs_ensure_id(World, Id, Type<T>.Id(World), (nint)Type<T>.Size);
     }
 
     /// <summary>
@@ -3237,7 +3331,7 @@ public unsafe partial struct Entity : IEquatable<Entity>, IEntity<Entity>
     public ref T Ensure<T>()
     {
         Ecs.Assert(Type<T>.Size != 0, nameof(ECS_INVALID_PARAMETER));
-        return ref Managed.GetTypeRef<T>(ecs_ensure_id(World, Id, Type<T>.Id(World)));
+        return ref Managed.GetTypeRef<T>(ecs_ensure_id(World, Id, Type<T>.Id(World), (nint)Type<T>.Size));
     }
 
     /// <summary>
@@ -3504,6 +3598,25 @@ public unsafe partial struct Entity : IEquatable<Entity>, IEntity<Entity>
     {
         using NativeString nativeJson = (NativeString)json;
         return NativeString.GetString(ecs_entity_from_json(World, Id, nativeJson, null));
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private ref Entity AssignInternal<T>(ulong id, in T component) where T : unmanaged
+    {
+        fixed (T* ptr = &component)
+        {
+            ecs_cpp_get_mut_t res = ecs_cpp_assign(World, Id, id, ptr, (nint)sizeof(T));
+            T* dst = (T*)res.ptr;
+            *dst = component;
+
+            if (res.stage != null)
+                flecs_defer_end(res.world, res.stage);
+
+            if (res.call_modified)
+                ecs_modified_id(World, Id, id);
+        }
+
+        return ref this;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

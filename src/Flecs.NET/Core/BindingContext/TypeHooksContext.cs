@@ -14,6 +14,7 @@ internal unsafe struct TypeHooksContext : IDisposable
     public Callback OnAdd;
     public Callback OnSet;
     public Callback OnRemove;
+    public Callback OnReplace;
     public Callback ContextFree;
 
     public static readonly TypeHooksContext Default = new() { Header = Ecs.Header };
@@ -27,6 +28,7 @@ internal unsafe struct TypeHooksContext : IDisposable
         OnAdd.Dispose();
         OnSet.Dispose();
         OnRemove.Dispose();
+        OnReplace.Dispose();
         ContextFree.Dispose();
     }
 

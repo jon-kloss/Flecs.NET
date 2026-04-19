@@ -848,6 +848,101 @@ public unsafe partial struct Component<TComponent>
     }
 
     /// <summary>
+    ///     Registers an OnReplace callback for this component.
+    /// </summary>
+    /// <param name="callback">The callback.</param>
+    /// <returns>Reference to self.</returns>
+    public ref Component<TComponent> OnReplace(Ecs.IterFieldCallback<TComponent> callback)
+    {
+        return ref SetOnReplaceCallback(callback, (delegate*<ecs_iter_t*, void>)&Functions.OnReplaceIterFieldCallbackDelegate<TComponent>);
+    }
+
+    /// <summary>
+    ///     Registers an OnReplace callback for this component.
+    /// </summary>
+    /// <param name="callback">The callback.</param>
+    /// <returns>Reference to self.</returns>
+    public ref Component<TComponent> OnReplace(Ecs.IterSpanCallback<TComponent> callback)
+    {
+        TypeHelper<TComponent>.AssertReferenceTypes(false);
+        return ref SetOnReplaceCallback(callback, (delegate*<ecs_iter_t*, void>)&Functions.OnReplaceIterSpanCallbackDelegate<TComponent>);
+    }
+
+    /// <summary>
+    ///     Registers an OnReplace callback for this component.
+    /// </summary>
+    /// <param name="callback">The callback.</param>
+    /// <returns>Reference to self.</returns>
+    public ref Component<TComponent> OnReplace(Ecs.IterPointerCallback<TComponent> callback)
+    {
+        TypeHelper<TComponent>.AssertReferenceTypes(false);
+        return ref SetOnReplaceCallback(callback, (delegate*<ecs_iter_t*, void>)&Functions.OnReplaceIterPointerCallbackDelegate<TComponent>);
+    }
+
+    /// <summary>
+    ///     Registers an OnReplace callback for this component.
+    /// </summary>
+    /// <param name="callback">The callback.</param>
+    /// <returns>Reference to self.</returns>
+    public ref Component<TComponent> OnReplace(Ecs.EachRefCallback<TComponent> callback)
+    {
+        return ref SetOnReplaceCallback(callback, (delegate*<ecs_iter_t*, void>)&Functions.OnReplaceEachRefCallbackDelegate<TComponent>);
+    }
+
+    /// <summary>
+    ///     Registers an OnReplace callback for this component.
+    /// </summary>
+    /// <param name="callback">The callback.</param>
+    /// <returns>Reference to self.</returns>
+    public ref Component<TComponent> OnReplace(Ecs.EachEntityRefCallback<TComponent> callback)
+    {
+        return ref SetOnReplaceCallback(callback, (delegate*<ecs_iter_t*, void>)&Functions.OnReplaceEachEntityRefCallbackDelegate<TComponent>);
+    }
+
+    /// <summary>
+    ///     Registers an OnReplace callback for this component.
+    /// </summary>
+    /// <param name="callback">The callback.</param>
+    /// <returns>Reference to self.</returns>
+    public ref Component<TComponent> OnReplace(Ecs.EachIterRefCallback<TComponent> callback)
+    {
+        return ref SetOnReplaceCallback(callback, (delegate*<ecs_iter_t*, void>)&Functions.OnReplaceEachIterRefCallbackDelegate<TComponent>);
+    }
+
+    /// <summary>
+    ///     Registers an OnReplace callback for this component.
+    /// </summary>
+    /// <param name="callback">The callback.</param>
+    /// <returns>Reference to self.</returns>
+    public ref Component<TComponent> OnReplace(Ecs.EachPointerCallback<TComponent> callback)
+    {
+        TypeHelper<TComponent>.AssertReferenceTypes(false);
+        return ref SetOnReplaceCallback(callback, (delegate*<ecs_iter_t*, void>)&Functions.OnReplaceEachPointerCallbackDelegate<TComponent>);
+    }
+
+    /// <summary>
+    ///     Registers an OnReplace callback for this component.
+    /// </summary>
+    /// <param name="callback">The callback.</param>
+    /// <returns>Reference to self.</returns>
+    public ref Component<TComponent> OnReplace(Ecs.EachEntityPointerCallback<TComponent> callback)
+    {
+        TypeHelper<TComponent>.AssertReferenceTypes(false);
+        return ref SetOnReplaceCallback(callback, (delegate*<ecs_iter_t*, void>)&Functions.OnReplaceEachEntityPointerCallbackDelegate<TComponent>);
+    }
+
+    /// <summary>
+    ///     Registers an OnReplace callback for this component.
+    /// </summary>
+    /// <param name="callback">The callback.</param>
+    /// <returns>Reference to self.</returns>
+    public ref Component<TComponent> OnReplace(Ecs.EachIterPointerCallback<TComponent> callback)
+    {
+        TypeHelper<TComponent>.AssertReferenceTypes(false);
+        return ref SetOnReplaceCallback(callback, (delegate*<ecs_iter_t*, void>)&Functions.OnReplaceEachIterPointerCallbackDelegate<TComponent>);
+    }
+
+    /// <summary>
     ///     Registers an OnAdd callback for this component.
     /// </summary>
     /// <param name="callback">The callback.</param>
@@ -1132,6 +1227,101 @@ public unsafe partial struct Component<TComponent>
         return ref SetOnRemoveCallback(callback, (delegate*<ecs_iter_t*, void>)&Functions.OnRemoveEachIterPointerCallbackPointer<TComponent>);
     }
 
+    /// <summary>
+    ///     Registers an OnReplace callback for this component.
+    /// </summary>
+    /// <param name="callback">The callback.</param>
+    /// <returns>Reference to self.</returns>
+    public ref Component<TComponent> OnReplace(delegate*<Iter, Field<TComponent>, void> callback)
+    {
+        return ref SetOnReplaceCallback(callback, (delegate*<ecs_iter_t*, void>)&Functions.OnReplaceIterFieldCallbackPointer<TComponent>);
+    }
+
+    /// <summary>
+    ///     Registers an OnReplace callback for this component.
+    /// </summary>
+    /// <param name="callback">The callback.</param>
+    /// <returns>Reference to self.</returns>
+    public ref Component<TComponent> OnReplace(delegate*<Iter, Span<TComponent>, void> callback)
+    {
+        TypeHelper<TComponent>.AssertReferenceTypes(false);
+        return ref SetOnReplaceCallback(callback, (delegate*<ecs_iter_t*, void>)&Functions.OnReplaceIterSpanCallbackPointer<TComponent>);
+    }
+
+    /// <summary>
+    ///     Registers an OnReplace callback for this component.
+    /// </summary>
+    /// <param name="callback">The callback.</param>
+    /// <returns>Reference to self.</returns>
+    public ref Component<TComponent> OnReplace(delegate*<Iter, TComponent*, void> callback)
+    {
+        TypeHelper<TComponent>.AssertReferenceTypes(false);
+        return ref SetOnReplaceCallback(callback, (delegate*<ecs_iter_t*, void>)&Functions.OnReplaceIterPointerCallbackPointer<TComponent>);
+    }
+
+    /// <summary>
+    ///     Registers an OnReplace callback for this component.
+    /// </summary>
+    /// <param name="callback">The callback.</param>
+    /// <returns>Reference to self.</returns>
+    public ref Component<TComponent> OnReplace(delegate*<ref TComponent, void> callback)
+    {
+        return ref SetOnReplaceCallback(callback, (delegate*<ecs_iter_t*, void>)&Functions.OnReplaceEachRefCallbackPointer<TComponent>);
+    }
+
+    /// <summary>
+    ///     Registers an OnReplace callback for this component.
+    /// </summary>
+    /// <param name="callback">The callback.</param>
+    /// <returns>Reference to self.</returns>
+    public ref Component<TComponent> OnReplace(delegate*<Entity, ref TComponent, void> callback)
+    {
+        return ref SetOnReplaceCallback(callback, (delegate*<ecs_iter_t*, void>)&Functions.OnReplaceEachEntityRefCallbackPointer<TComponent>);
+    }
+
+    /// <summary>
+    ///     Registers an OnReplace callback for this component.
+    /// </summary>
+    /// <param name="callback">The callback.</param>
+    /// <returns>Reference to self.</returns>
+    public ref Component<TComponent> OnReplace(delegate*<Iter, int, ref TComponent, void> callback)
+    {
+        return ref SetOnReplaceCallback(callback, (delegate*<ecs_iter_t*, void>)&Functions.OnReplaceEachIterRefCallbackPointer<TComponent>);
+    }
+
+    /// <summary>
+    ///     Registers an OnReplace callback for this component.
+    /// </summary>
+    /// <param name="callback">The callback.</param>
+    /// <returns>Reference to self.</returns>
+    public ref Component<TComponent> OnReplace(delegate*<TComponent*, void>callback)
+    {
+        TypeHelper<TComponent>.AssertReferenceTypes(false);
+        return ref SetOnReplaceCallback(callback, (delegate*<ecs_iter_t*, void>)&Functions.OnReplaceEachPointerCallbackPointer<TComponent>);
+    }
+
+    /// <summary>
+    ///     Registers an OnReplace callback for this component.
+    /// </summary>
+    /// <param name="callback">The callback.</param>
+    /// <returns>Reference to self.</returns>
+    public ref Component<TComponent> OnReplace(delegate*<Entity, TComponent*, void> callback)
+    {
+        TypeHelper<TComponent>.AssertReferenceTypes(false);
+        return ref SetOnReplaceCallback(callback, (delegate*<ecs_iter_t*, void>)&Functions.OnReplaceEachEntityPointerCallbackPointer<TComponent>);
+    }
+
+    /// <summary>
+    ///     Registers an OnReplace callback for this component.
+    /// </summary>
+    /// <param name="callback">The callback.</param>
+    /// <returns>Reference to self.</returns>
+    public ref Component<TComponent> OnReplace(delegate*<Iter, int, TComponent*, void> callback)
+    {
+        TypeHelper<TComponent>.AssertReferenceTypes(false);
+        return ref SetOnReplaceCallback(callback, (delegate*<ecs_iter_t*, void>)&Functions.OnReplaceEachIterPointerCallbackPointer<TComponent>);
+    }
+
     private ref Component<TComponent> SetOnAddCallback<T>(T callback, void* invoker) where T : Delegate
     {
         GetHooksAndContext(out ecs_type_hooks_t hooks, out TypeHooksContext* context);
@@ -1182,6 +1372,24 @@ public unsafe partial struct Component<TComponent>
         GetHooksAndContext(out ecs_type_hooks_t hooks, out TypeHooksContext* context);
         hooks.on_remove = &Functions.OnRemoveCallback;
         context->OnRemove.Set(callback, invoker);
+        ecs_set_hooks_id(World, Id, &hooks);
+        return ref this;
+    }
+
+    private ref Component<TComponent> SetOnReplaceCallback<T>(T callback, void* invoker) where T : Delegate
+    {
+        GetHooksAndContext(out ecs_type_hooks_t hooks, out TypeHooksContext* context);
+        hooks.on_replace = &Functions.OnReplaceCallback;
+        context->OnReplace.Set(callback, invoker);
+        ecs_set_hooks_id(World, Id, &hooks);
+        return ref this;
+    }
+
+    private ref Component<TComponent> SetOnReplaceCallback(void* callback, void* invoker)
+    {
+        GetHooksAndContext(out ecs_type_hooks_t hooks, out TypeHooksContext* context);
+        hooks.on_replace = &Functions.OnReplaceCallback;
+        context->OnReplace.Set(callback, invoker);
         ecs_set_hooks_id(World, Id, &hooks);
         return ref this;
     }
