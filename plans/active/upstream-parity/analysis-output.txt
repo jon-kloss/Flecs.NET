@@ -1,0 +1,361 @@
+================================================================================
+  Flecs.NET Upstream Parity & .NET 10 Upgrade — Full Analysis
+  Generated: 2026-04-19
+================================================================================
+
+
+================================================================================
+  EXECUTIVE SUMMARY
+================================================================================
+
+Version Gap:     Flecs.NET 4.0.4 -> upstream flecs 4.1.5 (6 releases behind)
+.NET Upgrade:    net9.0 -> net10.0 (LTS, fully released, 10.0.6 as of Apr 14 2026)
+Wrapper Status:  ~95% of core flecs functionality covered (946 native bindings)
+Biggest Risk:    Union relationships REMOVED in v4.1.0 (breaking change)
+
+
+================================================================================
+  GAP ANALYSIS SUMMARY
+================================================================================
+
+Key Gaps to Close (prioritized):
+
+CRITICAL (breaking changes from v4.1.0):
+  1. Union relationships removed — replaced by DontFragment + Exclusive
+  2. DontFragment trait for non-fragmenting components
+  3. OrderedChildren storage
+
+IMPORTANT (new features v4.0.5 - v4.1.5):
+  4. on_replace hook (new lifecycle hook, v4.1.1)
+  5. Singleton trait (v4.1.1)
+  6. World.Shrink() (v4.0.5)
+  7. Table API expansion (~10 new methods, v4.1.0)
+  8. Entity methods: Child(), Assign(), GetConstant() (v4.1.0)
+  9. Non-fragmenting hierarchy storage with Parent relationship (v4.1.5)
+ 10. World.Each(callback) for iterating all entities (v4.1.5)
+
+NICE-TO-HAVE (existing gaps, not version-dependent):
+ 11. Meta module completeness (string type, struct reflection)
+ 12. Script module expansion
+ 13. HTTP/REST high-level wrapper
+ 14. Detailed memory statistics API (v4.1.2)
+
+
+================================================================================
+  PLAN
+================================================================================
+
+# Flecs.NET Upstream Parity & .NET 10 Upgrade Plan
+
+## Goal
+Bring Flecs.NET up to parity with upstream flecs v4.1.5 (currently at v4.0.4) and upgrade the target framework from .NET 9 to .NET 10.
+
+## Current State
+- Flecs.NET version: 4.0.4
+- Upstream flecs version: 4.1.5 (released 2026-03-15)
+- Releases to catch up: v4.0.5, v4.1.0, v4.1.1, v4.1.2, v4.1.3, v4.1.4, v4.1.5
+- Target framework: net9.0
+
+--------------------------------------------------------------------------------
+
+## Phase 1: .NET 10 Upgrade
+
+.NET 10 is fully released (LTS, latest 10.0.6, end of support Nov 2028).
+
+### 1.1 Update Target Frameworks
+- Update all .csproj files from net9.0 to net10.0 (7 projects)
+- Keep Flecs.NET.Native at netstandard2.1 (native-only package, no managed code)
+- Update SDK version in global.json if present
+
+### 1.2 Verify Compatibility
+- Run full test suite — unsafe code and P/Invoke behavior unchanged in .NET 10
+- Check if any analyzer warnings change (EnforceCodeStyleInBuild is enabled)
+- Verify Zig cross-compilation still works with .NET 10 SDK
+
+--------------------------------------------------------------------------------
+
+## Phase 2: Update Native Submodule to v4.1.5
+
+### 2.1 Update Submodule
+- Update native/flecs submodule to v4.1.5 tag
+- Verify Zig cross-compilation still works for all targets
+- Build and run tests
+
+### 2.2 Regenerate Bindings
+- Run: dotnet run --project src/Flecs.NET.Bindgen
+- Review diff for new/changed/removed API functions
+- Update VersionPrefix in Directory.Build.props
+
+--------------------------------------------------------------------------------
+
+## Phase 3: API Changes from v4.0.5
+
+### 3.1 Core Changes
+- [ ] Implement world.Shrink() method (ecs_shrink)
+- [ ] Add Inheritable trait support
+- [ ] Root table storage for entities without components (internal, may just work)
+
+### 3.2 C++ Wrapper Ports
+- [ ] Add Ref.Component() method
+- [ ] Add path separator argument to Entity constructor
+- [ ] Support type-checked .TermAt<T>() and .TermAt<T>(i)
+- [ ] Support untyped references
+
+### 3.3 Meta Module
+- [ ] Implement equals/compare type hooks
+- [ ] Add opaque serializer callbacks for members and elements
+
+### 3.4 Script Module
+- [ ] Support binary and hex base number parsing (comes from native update)
+
+--------------------------------------------------------------------------------
+
+## Phase 4: API Changes from v4.1.0 (MAJOR)
+
+### 4.1 Breaking Changes
+- [ ] Remove Union relationship support (replaced by DontFragment, Exclusive)
+  - Remove UnionTests.cs or rewrite for new pattern
+  - Update any union-related wrapper code
+- [ ] Remove support for creating entity ids in multithreaded mode
+- [ ] Handle removed ecs_iter_t fields
+
+### 4.2 New Core Features
+- [ ] Implement non-fragmenting components (DontFragment trait)
+- [ ] Implement world exclusive access feature
+- [ ] Implement OrderedChildren storage
+- [ ] Add ecs_is_defer_suspended() wrapper
+- [ ] Move core tags out of low id range (may just work from native update)
+
+### 4.3 C++ Wrapper Ports
+- [ ] Change Entity.Parent() to use ecs_get_parent
+- [ ] Add Table API methods: Size(), Entities(), ClearEntities(), ColumnSize(),
+      Depth(), Records(), TableId(), Lock(), Unlock(), HasFlags()
+- [ ] Change return type patterns for Get() / TryGet() (evaluate C# equivalents)
+- [ ] Add Entity.GetConstant() for fetching constants from enum relationships
+- [ ] Add Entity.Child() method for spawning children
+- [ ] Implement Entity.Assign() method
+- [ ] Add singleton methods: SingletonGetMut, SingletonEnsure
+
+### 4.4 Query Improvements
+- [ ] Bloom filter acceleration (internal, comes from native)
+- [ ] Trivial query cache iterator (internal)
+- [ ] Support !(R, *) terms as cacheable
+- [ ] Allow trivial query cache for queries with not/optional operators
+
+### 4.5 Observer/System Improvements
+- [ ] Support single-term observers without query
+- [ ] System performance improvements from more efficient iteration
+
+### 4.6 Pipeline/Timer
+- [ ] Replace AddTickSource system with With pair
+
+### 4.7 Meta Module
+- [ ] Implement ordered enum/bitmask constants
+
+--------------------------------------------------------------------------------
+
+## Phase 5: API Changes from v4.1.1
+
+### 5.1 Core Changes
+- [ ] Implement on_replace hook
+  - Add IOnReplaceHook interface to src/Flecs.NET/Core/Hooks/
+- [ ] Implement Singleton trait
+- [ ] New size argument to ecs_emplace_id and ecs_ensure_id (binding update)
+
+### 5.2 C++ Wrapper Ports
+- [ ] Implement World.IdIfRegistered() method
+- [ ] Implement World.TypeInfo() method
+- [ ] Make World.ToJson() methods const/readonly
+
+### 5.3 Meta/JSON
+- [ ] Split up push serializer operations
+- [ ] Add underlying_kind field to serializer for enums
+- [ ] Handle EcsConstants component split from EcsEnum/EcsBitmask
+
+--------------------------------------------------------------------------------
+
+## Phase 6: API Changes from v4.1.2
+
+### 6.1 C++ Wrapper Ports
+- [ ] Add World() method to untyped ref
+- [ ] Add C# API for singleton enum constants
+
+### 6.2 Query/Observer Improvements
+- [ ] Make terms with Any wildcard cacheable
+- [ ] Improve toggle query performance (internal)
+- [ ] Remove observable field from observer desc
+
+### 6.3 Stats Module
+- [ ] Implement new detailed memory statistics API
+- [ ] Update WorldSummary component
+
+### 6.4 Meta Module
+- [ ] Add filter callback to serializer for blacklisting components
+- [ ] Add support for character literals
+- [ ] Implement lax member checks when deserializing
+
+--------------------------------------------------------------------------------
+
+## Phase 7: API Changes from v4.1.3 - v4.1.5
+
+### 7.1 Core (v4.1.3)
+- [ ] Add ecs_is_defer_suspended() function wrapper
+- [ ] Support children() with sparse relationships
+
+### 7.2 Core (v4.1.4)
+- [ ] Add ecs_get_version() wrapper
+
+### 7.3 Core (v4.1.5)
+- [ ] New non-fragmenting hierarchy storage (Parent relationship)
+- [ ] New world.Each(callback) for iterating all entities
+- [ ] System component deduction from Each() arguments
+- [ ] Improved hierarchy creation APIs (entity creation with parent)
+- [ ] Add Entity.ReadonlyOwnedBegin() / Entity.ReadonlyOwnedEnd()
+
+### 7.4 Script (v4.1.5)
+- [ ] Math and Perlin noise built-in functions (native, comes for free)
+- [ ] Vector type operations (native, comes for free)
+
+--------------------------------------------------------------------------------
+
+## Phase 8: Existing Feature Gaps (Pre-existing, Not Version-Dependent)
+
+### 8.1 HTTP/REST Module Wrapper
+The raw bindings exist (19 HTTP functions, 2 REST functions) but no high-level wrapper.
+- [ ] Consider wrapping ecs_http_server_t for direct HTTP control
+- [ ] REST is accessible via AppBuilder.EnableRest() - may be sufficient
+
+### 8.2 Meta Module Completeness
+Currently only registers primitive types.
+- [ ] String type support (noted as TODO in Meta.cs)
+- [ ] Struct reflection registration
+- [ ] Array/Vector type registration
+- [ ] Opaque type support
+- [ ] Full Cursor API (partially done)
+
+### 8.3 Script Module Completeness
+Only ScriptBuilder wrapping ecs_script_init exists.
+- [ ] Script template support
+- [ ] Script function/method registration
+- [ ] Script expression evaluation (ecs_expr_run, ecs_expr_parse, ecs_expr_eval)
+
+
+================================================================================
+  EXECUTION ORDER & DEPENDENCIES
+================================================================================
+
+Phase 1 (.NET 10)  ─────────────────────────────┐
+Phase 2 (Submodule + Bindings Regen)  ───────────┤
+                                                  ├──> Phase 3-7 (API changes)
+                                                  │    (can be done incrementally)
+                                                  └──> Phase 8 (Feature gaps)
+
+Phase 1 and 2 can be done in PARALLEL (framework-only vs native-only).
+Phase 3-7 should be done in ORDER (sequential releases, later may depend on earlier).
+Phase 8 can be done at ANY TIME but is lower priority than version parity.
+
+
+================================================================================
+  RISK ASSESSMENT
+================================================================================
+
+Risk                        | Impact              | Mitigation
+----------------------------|---------------------|------------------------------------------
+Union removal (v4.1.0)      | Breaking for users  | Document migration to DontFragment+Exclusive
+on_replace hook (v4.1.1)    | New hook interface   | Follow existing hook pattern (ICopyHook etc)
+DontFragment (v4.1.0)       | New storage model    | Complexity in native; wrapper needs trait reg
+Binding regen changes       | May break wrapper    | Review diff, fix compile errors incrementally
+.NET 10                     | Minimal risk         | Run full test suite
+
+
+================================================================================
+  ACCEPTANCE CRITERIA
+================================================================================
+
+- All existing tests pass on .NET 10
+- Native submodule points to v4.1.5
+- Bindings regenerated from v4.1.5 headers
+- All new C++ wrapper features from v4.0.5-v4.1.5 have C# equivalents
+- New features have test coverage
+- Version bumped to 4.1.5
+
+
+================================================================================
+  CONTEXT: UPSTREAM CHANGELOG HIGHLIGHTS
+================================================================================
+
+v4.0.5 — Performance/memory focused
+  - ecs_shrink/world::shrink for freeing unused memory
+  - Inheritable trait
+  - Equals/compare type hooks in meta
+  - Script parser split from FLECS_SCRIPT addon
+
+v4.1.0 — MAJOR release
+  - Union relationships REMOVED (replaced by DontFragment + Exclusive)
+  - Non-fragmenting components (DontFragment trait)
+  - World exclusive access
+  - OrderedChildren storage
+  - Table C++ API expanded significantly
+  - get() returns const T&, get_mut() returns T& (new try_get/try_get_mut)
+  - entity::child(), entity::assign()
+  - Single-term observers without query
+  - Bloom filter for queries
+  - Removed entity id creation in multithreaded mode
+
+v4.1.1 — Performance + new hook
+  - on_replace hook (new lifecycle hook!)
+  - Singleton trait
+  - New size argument to ecs_emplace_id/ecs_ensure_id
+  - world::id_if_registered, world::type_info()
+  - EcsConstants component split from EcsEnum/EcsBitmask
+
+v4.1.2 — C++17 requirement + memory stats
+  - C++ now requires C++17 (not relevant for C# wrapper)
+  - Detailed memory statistics API
+  - New REST endpoints: /components, /queries
+  - Any wildcard cacheable
+  - Observer desc observable field removed
+
+v4.1.3 — RAM utilization
+  - Fewer component records created
+  - ecs_is_defer_suspended() function
+  - ecs_record_t::cr field removed
+
+v4.1.4 — Bugfix release
+  - ecs_get_version() function
+
+v4.1.5 — Hierarchy storage + script math
+  - Non-fragmenting hierarchy storage (Parent relationship)
+  - world.each(callback) for iterating all entities
+  - System component deduction from each() arguments
+  - Math/Perlin noise in script
+  - Vector type operations in script
+
+
+================================================================================
+  CURRENT WRAPPER COVERAGE
+================================================================================
+
+Well-covered areas:
+  - World, Entity, Component, Query, System, Observer, Pipeline (core ECS)
+  - QueryBuilder, ObserverBuilder, SystemBuilder, PipelineBuilder (builders)
+  - Iter, Field, FieldData, Ref (iteration)
+  - Alert, AlertBuilder, MetricBuilder (addons)
+  - Doc module (on Entity + Ecs.Doc class)
+  - JSON serialization (ToJson/FromJson on Entity)
+  - ScriptBuilder (basic script loading)
+  - AppBuilder (with REST enabling)
+  - Cursor (meta cursor API)
+  - Type hook interfaces (Ctor, Dtor, Copy, Move, OnAdd, OnRemove, OnSet)
+  - Code generation for 1-16 generic type parameters
+  - 946 native function bindings in Flecs.g.cs
+  - 80+ working examples
+
+Modules registered: Alerts, Meta (primitive types only), Metrics, Stats, Units
+
+Architecture:
+  - Bindings auto-generated from C headers via Bindgen.NET
+  - Native lib cross-compiled via Zig toolsets
+  - Code generator produces generic overloads (T0..T15)
+  - All core types are structs wrapping native pointers
+  - BindingContext system manages GC-preventing of delegates passed to native code
