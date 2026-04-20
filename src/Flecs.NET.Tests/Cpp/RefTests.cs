@@ -234,4 +234,93 @@ public unsafe class RefTests
             Assert.True(p);
         }
     }
+
+    [Fact]
+    public void Component()
+    {
+        using World world = World.Create();
+
+        Entity e = world.Entity().Set(new Position(10, 20));
+        Ref<Position> reference = e.GetRef<Position>();
+
+        Id component = reference.Component();
+        Assert.Equal(world.Id<Position>(), component);
+    }
+
+    [Fact]
+    public void UntypedRefGetPtr()
+    {
+        using World world = World.Create();
+
+        Entity e = world.Entity().Set(new Position(10, 20));
+        UntypedRef reference = new UntypedRef(world, e, world.Id<Position>());
+
+        void* ptr = reference.GetPtr();
+        Assert.True(ptr != null);
+
+        Position* p = (Position*)ptr;
+        Assert.Equal(10, p->X);
+        Assert.Equal(20, p->Y);
+    }
+
+    [Fact]
+    public void UntypedRefEntity()
+    {
+        using World world = World.Create();
+
+        Entity e = world.Entity().Set(new Position(10, 20));
+        UntypedRef reference = new UntypedRef(world, e, world.Id<Position>());
+
+        Assert.Equal(e, reference.Entity());
+    }
+
+    [Fact]
+    public void UntypedRefComponent()
+    {
+        using World world = World.Create();
+
+        Entity e = world.Entity().Set(new Position(10, 20));
+        UntypedRef reference = new UntypedRef(world, e, world.Id<Position>());
+
+        Id component = reference.Component();
+        Assert.Equal(world.Id<Position>(), component);
+    }
+
+    [Fact]
+    public void UntypedRefHas()
+    {
+        using World world = World.Create();
+
+        Entity e = world.Entity().Set(new Position(10, 20));
+        UntypedRef reference = new UntypedRef(world, e, world.Id<Position>());
+
+        Assert.True(reference.Has());
+        Assert.True(reference);
+    }
+
+    [Fact]
+    public void UntypedRefTryGetPtr()
+    {
+        using World world = World.Create();
+
+        UntypedRef empty = default;
+        Assert.True(empty.TryGetPtr() == null);
+        Assert.False(empty);
+    }
+
+    [Fact]
+    public void UntypedRefTryGetPtrAfterDelete()
+    {
+        using World world = World.Create();
+
+        Entity e = world.Entity().Set(new Position(10, 20));
+        UntypedRef reference = new UntypedRef(world, e, world.Id<Position>());
+
+        void* ptr = reference.TryGetPtr();
+        Assert.True(ptr != null);
+
+        e.Destruct();
+        ptr = reference.TryGetPtr();
+        Assert.True(ptr == null);
+    }
 }

@@ -72,12 +72,12 @@ public readonly unsafe struct WorldInfo : IEquatable<WorldInfo>
     public float SystemTimeTotal => Handle->system_time_total;
 
     /// <summary>
-    ///     Total time spent in merges.
+    ///     Total time spent in event emission.
     /// </summary>
     public float EmitTimeTotal => Handle->emit_time_total;
 
     /// <summary>
-    ///     Time elapsed in simulation.
+    ///     Total time spent in merges.
     /// </summary>
     public float MergeTimeTotal => Handle->merge_time_total;
 
@@ -137,14 +137,14 @@ public readonly unsafe struct WorldInfo : IEquatable<WorldInfo>
     public long PipelineBuildCountTotal => Handle->pipeline_build_count_total;
 
     /// <summary>
-    ///     Total number of systems ran in last frame.
+    ///     Total number of systems ran.
     /// </summary>
-    public long SystemsRanFrame => Handle->systems_ran_frame;
+    public long SystemsRanTotal => Handle->systems_ran_total;
 
     /// <summary>
     ///     Total number of times observer was invoked.
     /// </summary>
-    public long ObserversRanFrame => Handle->observers_ran_frame;
+    public long ObserversRanTotal => Handle->observers_ran_total;
 
     /// <summary>
     ///     Number of tag (No data) ids in the world.

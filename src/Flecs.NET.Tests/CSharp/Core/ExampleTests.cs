@@ -428,9 +428,9 @@ public class ExampleTests
     }
 
     [Fact]
-    private void Relationships_Union()
+    private void Relationships_DontFragment()
     {
-        global::Relationships_Union.Main();
+        global::Relationships_DontFragment.Main();
     }
 
     [Fact]

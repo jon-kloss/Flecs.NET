@@ -1,15 +1,12 @@
 using System;
-using System.Runtime.CompilerServices;
-using Flecs.NET.Utilities;
 using static Flecs.NET.Bindings.flecs;
 
 namespace Flecs.NET.Core;
 
 /// <summary>
-///     Reference to a component from a specific entity.
+///     Untyped reference to a component from a specific entity.
 /// </summary>
-/// <typeparam name="T"></typeparam>
-public unsafe struct Ref<T> : IEquatable<Ref<T>>
+public unsafe struct UntypedRef : IEquatable<UntypedRef>
 {
     private ecs_world_t* _world;
     private ecs_ref_t _ref;
@@ -20,20 +17,14 @@ public unsafe struct Ref<T> : IEquatable<Ref<T>>
     public ref ecs_world_t* World => ref _world;
 
     /// <summary>
-    ///     Creates a ref.
+    ///     Creates an untyped ref.
     /// </summary>
     /// <param name="world"></param>
     /// <param name="entity"></param>
     /// <param name="id"></param>
-    public Ref(ecs_world_t* world, ulong entity, ulong id = 0)
+    public UntypedRef(ecs_world_t* world, ulong entity, ulong id)
     {
         _world = world == null ? null : ecs_get_world(world);
-
-        if (id == 0)
-            id = Type<T>.Id(world);
-
-        Ecs.Assert(Type<T>.Size != 0, nameof(ECS_INVALID_PARAMETER));
-
         _ref = ecs_ref_init_id(world, entity, id);
     }
 
@@ -41,28 +32,11 @@ public unsafe struct Ref<T> : IEquatable<Ref<T>>
     ///     Gets a pointer to the ref component.
     /// </summary>
     /// <returns></returns>
-    /// <exception cref="InvalidOperationException"></exception>
-    public T* GetPtr()
-    {
-        if (RuntimeHelpers.IsReferenceOrContainsReferences<T>())
-            throw new InvalidOperationException("Can't use GetPtr on managed types");
-
-        fixed (ecs_ref_t* refPtr = &_ref)
-        {
-            return (T*)ecs_ref_get_id(World, refPtr, _ref.id);
-        }
-    }
-
-    /// <summary>
-    ///     Gets a reference to the ref component.
-    /// </summary>
-    /// <returns></returns>
-    public ref T Get()
+    public void* GetPtr()
     {
         fixed (ecs_ref_t* refPtr = &_ref)
         {
-            void* data = ecs_ref_get_id(World, refPtr, _ref.id);
-            return ref Managed.GetTypeRef<T>(data);
+            return ecs_ref_get_id(World, refPtr, _ref.id);
         }
     }
 
@@ -70,7 +44,7 @@ public unsafe struct Ref<T> : IEquatable<Ref<T>>
     ///     Attempts to get a pointer to the ref component.
     /// </summary>
     /// <returns></returns>
-    public T* TryGetPtr()
+    public void* TryGetPtr()
     {
         if (World == null || _ref.entity == 0)
             return null;
@@ -79,30 +53,12 @@ public unsafe struct Ref<T> : IEquatable<Ref<T>>
     }
 
     /// <summary>
-    ///     Attempts to get a reference to the ref component.
-    /// </summary>
-    /// <returns></returns>
-    public ref T TryGet()
-    {
-        if (World == null || _ref.entity == 0)
-            return ref Unsafe.NullRef<T>();
-
-        return ref Get();
-    }
-
-    /// <summary>
     ///     Returns whether the reference is valid.
     /// </summary>
     /// <returns></returns>
     public bool Has()
     {
-        if (World == null || _ref.entity == 0)
-            return false;
-
-        fixed (ecs_ref_t* refPtr = &_ref)
-        {
-            return ecs_ref_get_id(World, refPtr, _ref.id) != null;
-        }
+        return TryGetPtr() != null;
     }
 
     /// <summary>
@@ -128,7 +84,7 @@ public unsafe struct Ref<T> : IEquatable<Ref<T>>
     /// </summary>
     /// <param name="reference">The ref object.</param>
     /// <returns></returns>
-    public static bool ToBoolean(Ref<T> reference)
+    public static bool ToBoolean(UntypedRef reference)
     {
         return reference.Has();
     }
@@ -138,33 +94,33 @@ public unsafe struct Ref<T> : IEquatable<Ref<T>>
     /// </summary>
     /// <param name="reference">The ref object.</param>
     /// <returns></returns>
-    public static implicit operator bool(Ref<T> reference)
+    public static implicit operator bool(UntypedRef reference)
     {
         return ToBoolean(reference);
     }
 
     /// <summary>
-    ///     Checks if two <see cref="Ref{T}"/> instances are equal.
+    ///     Checks if two <see cref="UntypedRef"/> instances are equal.
     /// </summary>
     /// <param name="other"></param>
     /// <returns></returns>
-    public bool Equals(Ref<T> other)
+    public bool Equals(UntypedRef other)
     {
-        return Equals(_ref, other._ref);
+        return _ref.entity == other._ref.entity && _ref.id == other._ref.id;
     }
 
     /// <summary>
-    ///     Checks if two <see cref="Ref{T}"/> instances are equal.
+    ///     Checks if two <see cref="UntypedRef"/> instances are equal.
     /// </summary>
     /// <param name="obj"></param>
     /// <returns></returns>
     public override bool Equals(object? obj)
     {
-        return obj is Ref<T> other && Equals(other);
+        return obj is UntypedRef other && Equals(other);
     }
 
     /// <summary>
-    ///     Returns the hash code of the <see cref="Ref{T}"/>.
+    ///     Returns the hash code of the <see cref="UntypedRef"/>.
     /// </summary>
     /// <returns></returns>
     public override int GetHashCode()
@@ -173,23 +129,23 @@ public unsafe struct Ref<T> : IEquatable<Ref<T>>
     }
 
     /// <summary>
-    ///     Checks if two <see cref="Ref{T}"/> instances are equal.
+    ///     Checks if two <see cref="UntypedRef"/> instances are equal.
     /// </summary>
     /// <param name="left"></param>
     /// <param name="right"></param>
     /// <returns></returns>
-    public static bool operator ==(Ref<T> left, Ref<T> right)
+    public static bool operator ==(UntypedRef left, UntypedRef right)
     {
         return left.Equals(right);
     }
 
     /// <summary>
-    ///     Checks if two <see cref="Ref{T}"/> instances are not equal.
+    ///     Checks if two <see cref="UntypedRef"/> instances are not equal.
     /// </summary>
     /// <param name="left"></param>
     /// <param name="right"></param>
     /// <returns></returns>
-    public static bool operator !=(Ref<T> left, Ref<T> right)
+    public static bool operator !=(UntypedRef left, UntypedRef right)
     {
         return !(left == right);
     }

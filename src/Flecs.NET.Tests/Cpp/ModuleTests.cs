@@ -223,6 +223,7 @@ public class ModuleTests
         Assert.True(u1 == u2);
     }
 
+
     [Fact]
     private void LookupModuleAfterReparent()
     {

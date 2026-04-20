@@ -1,10 +1,10 @@
-// This example shows how to use union relationships. Union relationships behave
-// much like exclusive relationships in that entities can have only one instance
-// and that adding an instance removes the previous instance.
+// This example shows how to use DontFragment with exclusive relationships.
+// Exclusive relationships allow entities to have only one instance, and adding
+// an instance removes the previous instance.
 //
-// What makes union relationships stand out is that changing the relationship
-// target doesn't change the archetype of an entity. This allows for quick
-// switching of tags, which can be useful when encoding state machines in ECS.
+// DontFragment makes it so that changing the relationship target doesn't change
+// the archetype of an entity. This allows for quick switching of tags, which
+// can be useful when encoding state machines in ECS.
 //
 // There is a tradeoff, and that is that because a single archetype can contain
 // entities with multiple targets, queries need to do a bit of extra work to
@@ -30,14 +30,14 @@ file enum Direction
     Right
 }
 
-public static class Relationships_Union
+public static class Relationships_DontFragment
 {
     public static void Main()
     {
         using World world = World.Create();
 
-        world.Component<Movement>().Add(Ecs.Union);
-        world.Component<Direction>().Add(Ecs.Union);
+        world.Component<Movement>().Add(Ecs.DontFragment);
+        world.Component<Direction>().Add(Ecs.DontFragment);
 
         // Create a query that subscribes for all entities that have a Direction
         // and that are walking

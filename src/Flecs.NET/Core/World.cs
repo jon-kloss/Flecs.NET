@@ -2234,6 +2234,66 @@ public readonly unsafe partial struct World : IDisposable, IEquatable<World>
     }
 
     /// <summary>
+    ///     Free unused memory.
+    /// </summary>
+    public void Shrink()
+    {
+        ecs_shrink(Handle);
+    }
+
+    /// <summary>
+    ///     Get type info for component.
+    /// </summary>
+    /// <param name="component">The component id.</param>
+    /// <returns>Pointer to the type info.</returns>
+    public ecs_type_info_t* TypeInfo(ulong component)
+    {
+        return ecs_get_type_info(Handle, component);
+    }
+
+    /// <summary>
+    ///     Get type info for component.
+    /// </summary>
+    /// <typeparam name="T">The component type.</typeparam>
+    /// <returns>Pointer to the type info.</returns>
+    public ecs_type_info_t* TypeInfo<T>()
+    {
+        return ecs_get_type_info(Handle, Type<T>.Id(Handle));
+    }
+
+    /// <summary>
+    ///     Get type info for pair.
+    /// </summary>
+    /// <param name="first">The first element of the pair.</param>
+    /// <param name="second">The second element of the pair.</param>
+    /// <returns>Pointer to the type info.</returns>
+    public ecs_type_info_t* TypeInfo(ulong first, ulong second)
+    {
+        return ecs_get_type_info(Handle, Ecs.Pair(first, second));
+    }
+
+    /// <summary>
+    ///     Get id for type if registered, 0 if not.
+    /// </summary>
+    /// <typeparam name="T">The type.</typeparam>
+    /// <returns>The id if registered, 0 otherwise.</returns>
+    public ulong IdIfRegistered<T>()
+    {
+        Type<T>.IsRegistered(Handle, out ulong id);
+        return id;
+    }
+
+    /// <summary>
+    ///     Get version of entity.
+    /// </summary>
+    /// <param name="entity">The entity.</param>
+    /// <returns>The entity version.</returns>
+    public uint GetVersion(ulong entity)
+    {
+        return ecs_get_version(entity);
+    }
+
+    /// <summary>
     ///     Check if entity id exists in the world.
     /// </summary>
     /// <param name="entity"></param>
@@ -2990,15 +3050,8 @@ public readonly unsafe partial struct World : IDisposable, IEquatable<World>
         while (current != 0)
         {
             Entity next = current.Parent();
-
-            ecs_iter_t it = ecs_each_id(Handle, Pair(Ecs.ChildOf, current));
-
-            if (!ecs_iter_is_true(&it))
-            {
-                current.Destruct();
-                SetVersion(current);
-            }
-
+            current.Destruct();
+            SetVersion(current);
             current = next;
         }
 
@@ -3211,7 +3264,7 @@ public readonly unsafe partial struct World : IDisposable, IEquatable<World>
         using NativeString nativeName = (NativeString)name;
         using NativeString nativeStr = (NativeString)str;
 
-        return ecs_script_run(Handle, nativeName, nativeStr);
+        return ecs_script_run(Handle, nativeName, nativeStr, null);
     }
 
     /// <summary>

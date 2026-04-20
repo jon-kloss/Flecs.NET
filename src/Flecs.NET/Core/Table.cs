@@ -655,6 +655,77 @@ public readonly unsafe partial struct Table : IEquatable<Table>
     }
 
     /// <summary>
+    ///     Get the allocated size (capacity) of the table.
+    /// </summary>
+    /// <returns></returns>
+    public int Size()
+    {
+        return ecs_table_size(Handle);
+    }
+
+    /// <summary>
+    ///     Get pointer to array of entity ids in the table.
+    /// </summary>
+    /// <returns></returns>
+    public ulong* Entities()
+    {
+        return ecs_table_entities(Handle);
+    }
+
+    /// <summary>
+    ///     Delete all entities in the table.
+    /// </summary>
+    public void ClearEntities()
+    {
+        ecs_table_clear_entities(World, Handle);
+    }
+
+    /// <summary>
+    ///     Get table records. The returned struct contains a pointer to internal table data
+    ///     that is only valid as long as the table is not modified.
+    /// </summary>
+    /// <returns></returns>
+    public ecs_table_records_t Records()
+    {
+        return flecs_table_records(Handle);
+    }
+
+    /// <summary>
+    ///     Get unique numerical identifier for the table.
+    /// </summary>
+    /// <returns></returns>
+    public ulong TableId()
+    {
+        return flecs_table_id(Handle);
+    }
+
+    /// <summary>
+    ///     Lock the table. Prevents modifications during iteration.
+    /// </summary>
+    public void Lock()
+    {
+        ecs_table_lock(World, Handle);
+    }
+
+    /// <summary>
+    ///     Unlock the table.
+    /// </summary>
+    public void Unlock()
+    {
+        ecs_table_unlock(World, Handle);
+    }
+
+    /// <summary>
+    ///     Test if table has the specified flags.
+    /// </summary>
+    /// <param name="flags"></param>
+    /// <returns></returns>
+    public bool HasFlags(uint flags)
+    {
+        return ecs_table_has_flags(Handle, flags);
+    }
+
+    /// <summary>
     ///     Get table.
     /// </summary>
     /// <returns>The table.</returns>
@@ -738,7 +809,7 @@ public readonly unsafe partial struct Table : IEquatable<Table>
     /// <returns></returns>
     public override int GetHashCode()
     {
-        return Handle->GetHashCode();
+        return Handle == null ? 0 : Handle->GetHashCode();
     }
 
     /// <summary>

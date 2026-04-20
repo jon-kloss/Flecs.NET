@@ -16,6 +16,7 @@ public static unsafe partial class Ecs
         /// <param name="world"></param>
         public readonly void InitModule(World world)
         {
+            world.Import<Units>();
             FlecsStatsImport(world);
         }
 
