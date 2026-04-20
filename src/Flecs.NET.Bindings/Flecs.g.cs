@@ -4733,13 +4733,9 @@ public static unsafe partial class flecs
 
         public delegate* unmanaged<ecs_function_ctx_t*, int, ecs_value_t*, ecs_value_t*, void> callback;
 
-        public InlineArrays.
+        public InlineArrays.ecs_function_vector_callback_18 vector_callbacks;
 
-delegate* unmanaged<ecs_function_ctx_t*, int, ecs_value_t*, ecs_value_t*, int, void> _18 
-
-vector_callbacks ;
-
-public void* ctx;
+        public void* ctx;
     }
 
     public partial struct ecs_script_eval_desc_t
@@ -4818,13 +4814,9 @@ public void* ctx;
 
         public delegate* unmanaged<ecs_function_ctx_t*, int, ecs_value_t*, ecs_value_t*, void> callback;
 
-        public InlineArrays.
+        public InlineArrays.ecs_function_vector_callback_18 vector_callbacks;
 
-delegate* unmanaged<ecs_function_ctx_t*, int, ecs_value_t*, ecs_value_t*, int, void> _18 
-
-vector_callbacks ;
-
-public void* ctx;
+        public void* ctx;
     }
 
     public partial struct ecs_expr_node_t
@@ -5384,13 +5376,11 @@ public void* ctx;
     public partial struct InlineArrays
     {
         [InlineArray(18)]
-        public partial struct 
-
-delegate* unmanaged<ecs_function_ctx_t*, int, ecs_value_t*, ecs_value_t*, int, void> _18 {
-
-public delegate* unmanaged<ecs_function_ctx_t*, int, ecs_value_t*, ecs_value_t*, int, void> Item0;
+        public partial struct ecs_function_vector_callback_18
+        {
+            public delegate* unmanaged<ecs_function_ctx_t*, int, ecs_value_t*, ecs_value_t*, int, void> Item0;
+        }
     }
-}
 
 public partial struct InlineArrays
 {
@@ -14703,48 +14693,42 @@ public partial struct InlineArrays
 
 public partial struct InlineArrays
 {
-    public partial struct 
-
-delegate* unmanaged<ecs_function_ctx_t*, int, ecs_value_t*, ecs_value_t*, int, void> _18 : 
-
-IEquatable<delegate* unmanaged<ecs_function_ctx_t*, int, ecs_value_t*, ecs_value_t*, int, void> _18> {
-
-    public bool Equals(delegate* unmanaged<ecs_function_ctx_t*, int, ecs_value_t*, ecs_value_t*, int, void> _18 other)
+    public partial struct ecs_function_vector_callback_18 : IEquatable<ecs_function_vector_callback_18>
     {
-        fixed (delegate* unmanaged<ecs_function_ctx_t*, int, ecs_value_t*, ecs_value_t*, int, void> _18*__self = &this )
+        public bool Equals(ecs_function_vector_callback_18 other)
         {
-            return new Span<byte>(__self, sizeof(delegate* unmanaged<ecs_function_ctx_t*, int, ecs_value_t*, ecs_value_t*, int, void> _18) ) .
-            SequenceEqual(new Span<byte>(&other, sizeof(delegate* unmanaged<ecs_function_ctx_t*, int, ecs_value_t*, ecs_value_t*, int, void> _18)) )
-            ;
+            fixed (ecs_function_vector_callback_18* __self = &this)
+            {
+                return new Span<byte>(__self, sizeof(ecs_function_vector_callback_18)).SequenceEqual(new Span<byte>(&other, sizeof(ecs_function_vector_callback_18)));
+            }
+        }
+
+        public override bool Equals(object? obj)
+        {
+            return obj is ecs_function_vector_callback_18 other && Equals(other);
+        }
+
+        public static bool operator ==(ecs_function_vector_callback_18 left, ecs_function_vector_callback_18 right)
+        {
+            return left.Equals(right);
+        }
+
+        public static bool operator !=(ecs_function_vector_callback_18 left, ecs_function_vector_callback_18 right)
+        {
+            return !(left == right);
+        }
+
+        public override int GetHashCode()
+        {
+            fixed (ecs_function_vector_callback_18* __self = &this)
+            {
+                HashCode hash = new();
+                hash.AddBytes(new Span<byte>(__self, sizeof(ecs_function_vector_callback_18)));
+                return hash.ToHashCode();
+            }
         }
     }
-
-    public override bool Equals(object? obj)
-    {
-        return obj is delegate* unmanaged<ecs_function_ctx_t*, int, ecs_value_t*, ecs_value_t*, int, void> _18 other && Equals(other);
-    }
-
-    public static bool operator ==(delegate* unmanaged<ecs_function_ctx_t*, int, ecs_value_t*, ecs_value_t*, int, void> _18 left, delegate* unmanaged<ecs_function_ctx_t*, int, ecs_value_t*, ecs_value_t*, int, void> _18 right)
-    {
-        return left.Equals(right);
-    }
-
-    public static bool operator !=(delegate* unmanaged<ecs_function_ctx_t*, int, ecs_value_t*, ecs_value_t*, int, void> _18 left, delegate* unmanaged<ecs_function_ctx_t*, int, ecs_value_t*, ecs_value_t*, int, void> _18 right)
-    {
-        return !(left == right);
-    }
-
-    public override int GetHashCode()
-    {
-        fixed (delegate* unmanaged<ecs_function_ctx_t*, int, ecs_value_t*, ecs_value_t*, int, void> _18*__self = &this )
-        {
-            HashCode hash = new();
-            hash.AddBytes(new Span<byte>(__self, sizeof(delegate* unmanaged<ecs_function_ctx_t*, int, ecs_value_t*, ecs_value_t*, int, void> _18)) )
-            ;
-            return hash.ToHashCode();
-        }
-    }
-} }
+}
 public partial struct InlineArrays
 {
     public partial struct ecs_script_parameter_t_16 : IEquatable<ecs_script_parameter_t_16>

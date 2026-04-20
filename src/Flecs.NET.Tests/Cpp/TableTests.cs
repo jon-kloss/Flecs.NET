@@ -711,7 +711,7 @@ public unsafe class TableTests
         Table table = e.Table();
 
         // A basic table should not have special flags
-        Assert.False(table.HasFlags(EcsTableHasIsA));
+        Assert.False(table.HasFlags(Flecs.NET.Bindings.flecs.EcsTableHasIsA));
     }
 
     [Fact]
