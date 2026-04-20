@@ -243,7 +243,7 @@ public class ModuleTests
         Entity e = world.Entity(".Namespace.NestedModule");
         Assert.True(e != m);
 
-        Assert.True(world.QueryBuilder().Expr("(ChildOf, p.NestedModule)").Build().Count() > 0);
+        Assert.Equal(1, world.QueryBuilder().Expr("(ChildOf, p.NestedModule)").Build().Count());
         Assert.Equal(0, world.QueryBuilder().Expr("(ChildOf, Namespace.NestedModule)").Build().Count());
     }
 

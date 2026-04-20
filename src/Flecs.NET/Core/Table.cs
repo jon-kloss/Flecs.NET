@@ -681,7 +681,8 @@ public readonly unsafe partial struct Table : IEquatable<Table>
     }
 
     /// <summary>
-    ///     Get table records.
+    ///     Get table records. The returned struct contains a pointer to internal table data
+    ///     that is only valid as long as the table is not modified.
     /// </summary>
     /// <returns></returns>
     public ecs_table_records_t Records()
@@ -808,7 +809,7 @@ public readonly unsafe partial struct Table : IEquatable<Table>
     /// <returns></returns>
     public override int GetHashCode()
     {
-        return Handle->GetHashCode();
+        return Handle == null ? 0 : Handle->GetHashCode();
     }
 
     /// <summary>

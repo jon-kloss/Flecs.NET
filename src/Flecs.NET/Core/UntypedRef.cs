@@ -106,7 +106,7 @@ public unsafe struct UntypedRef : IEquatable<UntypedRef>
     /// <returns></returns>
     public bool Equals(UntypedRef other)
     {
-        return Equals(_ref, other._ref);
+        return _ref.entity == other._ref.entity && _ref.id == other._ref.id;
     }
 
     /// <summary>

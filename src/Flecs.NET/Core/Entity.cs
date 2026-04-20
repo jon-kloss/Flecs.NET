@@ -459,9 +459,7 @@ public unsafe partial struct Entity : IEquatable<Entity>, IEntity<Entity>
             return new Entity(World, ecs_new_w_parent(World, Id, nativeName));
         }
 
-        Entity child = new Entity(World);
-        child.Add(EcsChildOf, Id);
-        return child;
+        return new Entity(World, ecs_new_w_id(World, Ecs.Pair(EcsChildOf, Id)));
     }
 
     /// <summary>
@@ -472,11 +470,18 @@ public unsafe partial struct Entity : IEquatable<Entity>, IEntity<Entity>
     /// <returns>The child entity.</returns>
     public Entity Child(ulong relation, string? name = null)
     {
-        Entity child = name != null
-            ? new Entity(World, name)
-            : new Entity(World);
-        child.Add(relation, Id);
-        return child;
+        if (name != null)
+        {
+            ulong prevScope = ecs_set_scope(World, Id);
+            Entity child = new Entity(World, name);
+            ecs_set_scope(World, prevScope);
+            child.Add(relation, Id);
+            return child;
+        }
+
+        Entity unnamed = new Entity(World);
+        unnamed.Add(relation, Id);
+        return unnamed;
     }
 
     /// <summary>
@@ -1416,13 +1421,15 @@ public unsafe partial struct Entity : IEquatable<Entity>, IEntity<Entity>
     }
 
     /// <summary>
-    ///     Get enum constant for entity.
+    ///     Get enum constant for entity. The entity must have a relationship with the
+    ///     enum type T, otherwise this method will assert.
     /// </summary>
     /// <typeparam name="T">The enum type.</typeparam>
     /// <returns>The enum constant value.</returns>
     public T GetConstant<T>() where T : unmanaged, Enum
     {
         Entity target = Target<T>();
+        Ecs.Assert(target != 0, "Entity does not have a relationship with the specified enum type.");
         return target.ToConstant<T>();
     }
 
@@ -2706,7 +2713,7 @@ public unsafe partial struct Entity : IEquatable<Entity>, IEntity<Entity>
     /// <typeparam name="TFirst">The first type of the pair.</typeparam>
     /// <typeparam name="TSecond">The second type of the pair.</typeparam>
     /// <returns>Reference to self.</returns>
-    public ref Entity Assign<TFirst, TSecond>(in TSecond data) where TSecond : unmanaged
+    public ref Entity Assign<TFirst, TSecond>(in TSecond data) where TFirst : unmanaged where TSecond : unmanaged
     {
         return ref AssignInternal(Ecs.Pair<TFirst, TSecond>(World), in data);
     }
@@ -3221,7 +3228,13 @@ public unsafe partial struct Entity : IEquatable<Entity>, IEntity<Entity>
     public void* EnsurePtr(ulong id)
     {
         ecs_type_info_t* ti = ecs_get_type_info(World, id);
-        Ecs.Assert(ti != null && ti->size != 0, nameof(ECS_INVALID_PARAMETER));
+
+        if (ti == null || ti->size == 0)
+        {
+            Ecs.Assert(false, nameof(ECS_INVALID_PARAMETER));
+            return null;
+        }
+
         return ecs_ensure_id(World, Id, id, (nint)ti->size);
     }
 
@@ -3606,8 +3619,6 @@ public unsafe partial struct Entity : IEquatable<Entity>, IEntity<Entity>
         fixed (T* ptr = &component)
         {
             ecs_cpp_get_mut_t res = ecs_cpp_assign(World, Id, id, ptr, (nint)sizeof(T));
-            T* dst = (T*)res.ptr;
-            *dst = component;
 
             if (res.stage != null)
                 flecs_defer_end(res.world, res.stage);

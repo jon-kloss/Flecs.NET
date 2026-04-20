@@ -711,7 +711,7 @@ public unsafe class TableTests
         Table table = e.Table();
 
         // A basic table should not have special flags
-        Assert.False(table.HasFlags(1u << 18)); // EcsTableHasIsA
+        Assert.False(table.HasFlags(EcsTableHasIsA));
     }
 
     [Fact]

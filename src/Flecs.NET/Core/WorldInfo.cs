@@ -72,12 +72,12 @@ public readonly unsafe struct WorldInfo : IEquatable<WorldInfo>
     public float SystemTimeTotal => Handle->system_time_total;
 
     /// <summary>
-    ///     Total time spent in merges.
+    ///     Total time spent in event emission.
     /// </summary>
     public float EmitTimeTotal => Handle->emit_time_total;
 
     /// <summary>
-    ///     Time elapsed in simulation.
+    ///     Total time spent in merges.
     /// </summary>
     public float MergeTimeTotal => Handle->merge_time_total;
 

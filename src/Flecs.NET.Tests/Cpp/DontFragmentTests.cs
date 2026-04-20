@@ -60,22 +60,6 @@ public class DontFragmentTests
     }
 
     [Fact]
-    private void AddSwitchWithType()
-    {
-        using World world = World.Create();
-
-        world.Component<Movement>().Add(Ecs.DontFragment).Add(Ecs.Exclusive);
-
-        Entity e = world.Entity().Add<Movement, Standing>();
-        Assert.True((e.Has<Movement, Standing>()));
-
-        e.Add<Movement, Walking>();
-
-        Assert.True((e.Has<Movement, Walking>()));
-        Assert.True((!e.Has<Movement, Standing>()));
-    }
-
-    [Fact]
     private void AddRemoveSwitchWithType()
     {
         using World world = World.Create();

@@ -175,8 +175,6 @@ public static partial class Ecs
     /// </summary>
     public static ref ulong Observer => ref EcsObserver;
 
-    // EcsPrivate was removed in flecs v4.1.0
-
     /// <summary>
     ///     Reference to <see cref="EcsModule"/>.
     /// </summary>
