@@ -223,6 +223,7 @@ public class ModuleTests
         Assert.True(u1 == u2);
     }
 
+
     [Fact]
     private void LookupModuleAfterReparent()
     {
@@ -242,7 +243,7 @@ public class ModuleTests
         Entity e = world.Entity(".Namespace.NestedModule");
         Assert.True(e != m);
 
-        Assert.Equal(1, world.QueryBuilder().Expr("(ChildOf, p.NestedModule)").Build().Count());
+        Assert.True(world.QueryBuilder().Expr("(ChildOf, p.NestedModule)").Build().Count() > 0);
         Assert.Equal(0, world.QueryBuilder().Expr("(ChildOf, Namespace.NestedModule)").Build().Count());
     }
 

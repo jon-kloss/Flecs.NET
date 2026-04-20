@@ -3050,15 +3050,8 @@ public readonly unsafe partial struct World : IDisposable, IEquatable<World>
         while (current != 0)
         {
             Entity next = current.Parent();
-
-            ecs_iter_t it = ecs_each_id(Handle, Pair(Ecs.ChildOf, current));
-
-            if (!ecs_iter_is_true(&it))
-            {
-                current.Destruct();
-                SetVersion(current);
-            }
-
+            current.Destruct();
+            SetVersion(current);
             current = next;
         }
 

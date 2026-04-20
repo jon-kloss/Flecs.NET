@@ -127,17 +127,8 @@ public class QueryBuilderTests
                 .Build();
         });
 
-        Assert.Throws<Ecs.AssertionException>(() =>
-        {
-            world.Component<Tag>().Add(Ecs.PairIsTag);
-
-            world.QueryBuilder()
-                .Cached()
-                .With<Tag, Position>()
-                .TermAt<Position>(0)
-                .Build();
-
-            world.Component<Tag>().Remove(Ecs.PairIsTag);
-        });
+        // In flecs v4.1.5, traits are locked after the component is queried.
+        // Setting PairIsTag after queries use Tag causes a fatal native assertion,
+        // so this scenario is no longer testable.
     }
 }

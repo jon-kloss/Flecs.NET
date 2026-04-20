@@ -18,6 +18,9 @@ internal unsafe struct FieldData<T>()
         Iter = iter;
         Index = index;
 
+        if (Type<T>.Size == 0)
+            return;
+
         if (Utils.IsBitSet(iter->row_fields, index))
         {
             IsSparse = true;
